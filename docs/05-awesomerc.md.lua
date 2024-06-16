@@ -78,7 +78,7 @@ and wallpaper across multiple screens. In the default configuration, the `"reque
 is emitted everytime a screen is added, moved, resized or when the bars
 (`awful.wibar`) are moved.
 
-This is will suited for single-screen wallpapers. If you wish to use multi-screen wallpaper,
+This is well suited for single-screen wallpapers. If you wish to use multi-screen wallpaper,
 it is better to create a global wallpaper object and edit it when the screen change. See
 the `add_screen`/`remove_screens` methods and the `screens` property of `awful.wallpaper` for
 examples.
@@ -324,6 +324,8 @@ rc_lua:close()
 
 
 table.insert(output_script, "-- @script rc.lua")
+table.insert(output_script, "-- @usebeautiful beautiful.awesome_icon")
+table.insert(output_script, "-- @usebeautiful beautiful.wallpaper")
 
 rc_script = assert(io.open(rc_script, "w"))
 rc_script:write(table.concat(output_script, "\n"))

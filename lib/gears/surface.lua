@@ -1,4 +1,6 @@
 ---------------------------------------------------------------------------
+-- Utilities to integrate and manipulate Cairo drawing surfaces.
+--
 -- @author Uli Schlachter
 -- @copyright 2012 Uli Schlachter
 -- @module gears.surface
@@ -9,9 +11,10 @@ local type = type
 local capi = { awesome = awesome }
 local cairo = require("lgi").cairo
 local GdkPixbuf = require("lgi").GdkPixbuf
-local color = nil
+local color, beautiful = nil, nil
 local gdebug = require("gears.debug")
 local hierarchy = require("wibox.hierarchy")
+local ceil = math.ceil
 
 -- Keep this in sync with build-utils/lgi-check.c!
 local ver_major, ver_minor, ver_patch = string.match(require('lgi.version'), '(%d)%.(%d)%.(%d)')
@@ -31,7 +34,7 @@ end
 
 --- Try to convert the argument into an lgi cairo surface.
 -- This is usually needed for loading images by file name.
--- @param _surface The surface to load or nil
+-- @param surface The surface to load or nil
 -- @param default The default value to return on error; when nil, then a surface
 -- in an error state is returned.
 -- @return The loaded surface, or the replacement default
@@ -67,60 +70,60 @@ end
 --- Try to convert the argument into an lgi cairo surface.
 -- This is usually needed for loading images by file name and uses a cache.
 -- In contrast to `load()`, errors are returned to the caller.
--- @param _surface The surface to load or nil
+-- @param surface The surface to load or nil
 -- @param default The default value to return on error; when nil, then a surface
 -- in an error state is returned.
 -- @return The loaded surface, or the replacement default, or nil if called with
 -- nil.
 -- @return An error message, or nil on success.
 -- @staticfct load_silently
-function surface.load_silently(_surface, default)
-    if type(_surface) == "string" then
-        local cache = surface_cache[_surface]
+function surface.load_silently(self, default)
+    if type(self) == "string" then
+        local cache = surface_cache[self]
         if cache then
             return cache
         end
-        local result, err = surface.load_uncached_silently(_surface, default)
+        local result, err = surface.load_uncached_silently(self, default)
         if not err then
             -- Cache the file
-            surface_cache[_surface] = result
+            surface_cache[self] = result
         end
         return result, err
     end
-    return surface.load_uncached_silently(_surface, default)
+    return surface.load_uncached_silently(self, default)
 end
 
-local function do_load_and_handle_errors(_surface, func)
-    if type(_surface) == 'nil' then
+local function do_load_and_handle_errors(self, func)
+    if type(self) == 'nil' then
         return get_default()
     end
-    local result, err = func(_surface, false)
+    local result, err = func(self, false)
     if result then
         return result
     end
     gdebug.print_error(debug.traceback(
-        "Failed to load '" .. tostring(_surface) .. "': " .. tostring(err)))
+        "Failed to load '" .. tostring(self) .. "': " .. tostring(err)))
     return get_default()
 end
 
 --- Try to convert the argument into an lgi cairo surface.
 -- This is usually needed for loading images by file name. Errors are handled
 -- via `gears.debug.print_error`.
--- @param _surface The surface to load or nil
+-- @param surface The surface to load or nil
 -- @return The loaded surface, or nil
 -- @staticfct load_uncached
-function surface.load_uncached(_surface)
-    return do_load_and_handle_errors(_surface, surface.load_uncached_silently)
+function surface.load_uncached(self)
+    return do_load_and_handle_errors(self, surface.load_uncached_silently)
 end
 
 --- Try to convert the argument into an lgi cairo surface.
 -- This is usually needed for loading images by file name. Errors are handled
 -- via `gears.debug.print_error`.
--- @param _surface The surface to load or nil
+-- @param surface The surface to load or nil
 -- @return The loaded surface, or nil.
 -- @staticfct gears.surface
-function surface.load(_surface)
-    return do_load_and_handle_errors(_surface, surface.load_silently)
+function surface.load(self)
+    return do_load_and_handle_errors(self, surface.load_silently)
 end
 
 function surface.mt.__call(_, ...)
@@ -169,8 +172,8 @@ end
 -- @tparam number width The surface width
 -- @tparam number height The surface height
 -- @param shape A `gears.shape` compatible function
--- @param[opt=white] shape_color The shape color or pattern
--- @param[opt=transparent] bg_color The surface background color
+-- @param[opt="#000000"] shape_color The shape color or pattern
+-- @param[opt="#00000000"] bg_color The surface background color
 -- @treturn cairo.surface the new surface
 -- @staticfct load_from_shape
 function surface.load_from_shape(width, height, shape, shape_color, bg_color, ...)
@@ -195,11 +198,11 @@ end
 --
 --  If the wibox or client size change, this function need to be called
 --   again.
--- @param draw A wibox or a client
--- @param shape or gears.shape function or a custom function with a context,
---   width and height as parameter.
--- @param[opt] Any additional parameters will be passed to the shape function.
+-- @tparam client|wibox draw A wibox or a client.
+-- @tparam gears.shape|function shape The shape.
+-- @param[opt] ... Any additional parameters will be passed to the shape function.
 -- @staticfct apply_shape_bounding
+-- @noreturn
 function surface.apply_shape_bounding(draw, shape, ...)
   local geo = draw:geometry()
 
@@ -232,7 +235,7 @@ end
 --- Create an SVG file with this widget content.
 -- This is dynamic, so the SVG will be updated along with the widget content.
 -- because of this, the painting may happen hover multiple event loop cycles.
--- @deprecated draw_to_svg_file
+-- @deprecated widget_to_svg
 -- @tparam widget widget A widget
 -- @tparam string path The output file path
 -- @tparam number width The surface width
@@ -243,9 +246,14 @@ end
 -- @see wibox.widget.draw_to_image_surface
 function surface.widget_to_svg(widget, path, width, height)
     gdebug.deprecate("Use wibox.widget.draw_to_svg_file instead of "..
-        "gears.surface.render_to_svg", {deprecated_in=5})
+        "gears.surface.widget_to_svg", {deprecated_in=5})
     local img = cairo.SvgSurface.create(path, width, height)
     local cr = cairo.Context(img)
+
+    -- Bad dependecy, but this is deprecated.
+    beautiful = beautiful or require("beautiful")
+    color = color or require("gears.color")
+    cr:set_source(color(beautiful.fg_normal))
 
     return img, run_in_hierarchy(widget, cr, width, height)
 end
@@ -253,7 +261,7 @@ end
 --- Create a cairo surface with this widget content.
 -- This is dynamic, so the SVG will be updated along with the widget content.
 -- because of this, the painting may happen hover multiple event loop cycles.
--- @deprecated draw_to_image_surface
+-- @deprecated widget_to_surface
 -- @tparam widget widget A widget
 -- @tparam number width The surface width
 -- @tparam number height The surface height
@@ -268,7 +276,88 @@ function surface.widget_to_surface(widget, width, height, format)
     local img = cairo.ImageSurface(format or cairo.Format.ARGB32, width, height)
     local cr = cairo.Context(img)
 
+    -- Bad dependecy, but this is deprecated.
+    color = color or require("gears.color")
+    beautiful = beautiful or require("beautiful")
+    cr:set_source(color(beautiful.fg_normal))
+
     return img, run_in_hierarchy(widget, cr, width, height)
+end
+
+--- Crop a surface on its edges.
+-- @tparam[opt=nil] table args
+-- @tparam[opt=0] integer args.left Left cutoff, cannot be negative
+-- @tparam[opt=0] integer args.right Right cutoff, cannot be negative
+-- @tparam[opt=0] integer args.top Top cutoff, cannot be negative
+-- @tparam[opt=0] integer args.bottom Bottom cutoff, cannot be negative
+-- @tparam[opt=nil] number|nil args.ratio Ratio to crop the image to. If edge cutoffs and
+-- ratio are given, the edge cutoffs are computed first. Using ratio will crop
+-- the center out of an image, similar to what "zoomed-fill" does in wallpaper
+-- setter programs. Cannot be negative
+-- @tparam[opt=nil] surface args.surface The surface to crop
+-- @return The cropped surface
+-- @staticfct crop_surface
+function surface.crop_surface(args)
+    args = args or {}
+
+    if not args.surface then
+        error("No surface to crop_surface supplied")
+        return nil
+    end
+
+    local surf = args.surface
+    local target_ratio = args.ratio
+
+    local w, h = surface.get_size(surf)
+    local offset_w, offset_h =  0, 0
+
+    if (args.top or args.right or args.bottom or args.left) then
+        local left = args.left or 0
+        local right = args.right or 0
+        local top = args.top or 0
+        local bottom = args.bottom or 0
+
+        if (top < 0 or right < 0 or bottom < 0 or left < 0) then
+            error("negative offsets are not supported for crop_surface")
+        end
+
+        w = w - left - right
+        h = h - top - bottom
+
+        -- the offset needs to be negative
+        offset_w = - left
+        offset_h = - top
+
+        -- breaking stuff with cairo crashes awesome with no way to restart in place
+        -- so here are checks for user error
+        if w <= 0 or h <= 0 then
+            error("Area to remove cannot be larger than the image size")
+            return nil
+        end
+    end
+
+    if target_ratio and target_ratio > 0 then
+        local prev_ratio = w/h
+        if prev_ratio ~= target_ratio then
+            if (prev_ratio < target_ratio) then
+                local old_h = h
+                h = ceil(w * (1/target_ratio))
+                offset_h = offset_h - ceil((old_h - h)/2)
+            else
+                local old_w = w
+                w = ceil(h * target_ratio)
+                offset_w = offset_w - ceil((old_w - w)/2)
+            end
+        end
+    end
+
+    local ret = cairo.ImageSurface(cairo.Format.ARGB32, w, h)
+    local cr = cairo.Context(ret)
+    cr:set_source_surface(surf, offset_w, offset_h)
+    cr.operator = cairo.Operator.SOURCE
+    cr:paint()
+
+    return ret
 end
 
 return setmetatable(surface, surface.mt)

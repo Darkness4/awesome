@@ -10,6 +10,7 @@ local wibox     = require("wibox")
 local beautiful = require("beautiful") --DOC_HIDE
 local assets    = require("beautiful.theme_assets")
 local look      = require("_default_look")
+local color     = require("gears.color")
 
 screen[1]._resize {width = 640, height = 480}
 
@@ -106,9 +107,9 @@ awful.popup {
             filter      = awful.widget.layoutlist.source.for_screen,
             screen      = 1,
             base_layout = wibox.widget {
-                spacing         = 5,
-                forced_num_cols = 5,
-                layout          = wibox.layout.grid.vertical,
+                spacing      = 5,
+                column_count = 5,
+                layout       = wibox.layout.grid.vertical,
             },
             widget_template = {
                 {
@@ -209,7 +210,7 @@ local function create_info(text, x, y, width, height)
         {
             {
                 text = text,
-                align = "center",
+                halign = "center",
                 ellipsize = "none",
                 wrap = "word",
                 widget = wibox.widget.textbox
@@ -233,7 +234,7 @@ local function create_line(x1, y1, x2, y2)
             return x2-x1+6, y2-y1+6
         end,
         draw = function(_, _, cr)
-            cr:set_source_rgb(0,0,0)
+            cr:set_source(color(beautiful.fg_normal))
             cr:set_line_width(1)
             cr:arc(1.5, 1.5, 1.5, 0, math.pi*2)
             cr:arc(x2-x1+1.5, y2-y1+1.5, 1.5, 0, math.pi*2)

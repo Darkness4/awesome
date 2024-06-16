@@ -19,7 +19,7 @@
  *
  */
 
-/** awesome mousegrabber API.
+/** Set a callback to process all mouse events.
  * @author Julien Danjou &lt;julien@danjou.info&gt;
  * @copyright 2008-2009 Julien Danjou
  * @coreclassmod mousegrabber
@@ -87,8 +87,10 @@ mousegrabber_handleevent(lua_State *L, int x, int y, uint16_t mask)
  *@DOC_cursor_c_COMMON@
  *
  *
- * @param func A callback function as described above.
- * @param cursor The name of a X cursor to use while grabbing.
+ * @tparam function func A callback function as described above.
+ * @tparam string|nil cursor The name of an X cursor to use while grabbing or `nil`
+ * to not change the cursor.
+ * @noreturn
  * @staticfct run
  */
 static int
@@ -97,29 +99,35 @@ luaA_mousegrabber_run(lua_State *L)
     if(globalconf.mousegrabber != LUA_REFNIL)
         luaL_error(L, "mousegrabber already running");
 
-    uint16_t cfont = xcursor_font_fromstr(luaL_checkstring(L, 2));
+    xcb_cursor_t cursor = XCB_NONE;
 
-    if(cfont)
+    if(!lua_isnil(L, 2))
     {
-        xcb_cursor_t cursor = xcursor_new(globalconf.cursor_ctx, cfont);
-
-        luaA_registerfct(L, 1, &globalconf.mousegrabber);
-
-        if(!mousegrabber_grab(cursor))
+        uint16_t cfont = xcursor_font_fromstr(luaL_checkstring(L, 2));
+        if(!cfont)
         {
-            luaA_unregister(L, &globalconf.mousegrabber);
-            luaL_error(L, "unable to grab mouse pointer");
+            luaA_warn(L, "invalid cursor");
+            return 0;
         }
-    }
-    else
-        luaA_warn(L, "invalid cursor");
 
+        cursor = xcursor_new(globalconf.cursor_ctx, cfont);
+    }
+
+    luaA_registerfct(L, 1, &globalconf.mousegrabber);
+
+    if(!mousegrabber_grab(cursor))
+    {
+        luaA_unregister(L, &globalconf.mousegrabber);
+        luaL_error(L, "unable to grab mouse pointer");
+    }
+    
     return 0;
 }
 
 /** Stop grabbing the mouse pointer.
  *
  * @staticfct stop
+ * @noreturn
  */
 int
 luaA_mousegrabber_stop(lua_State *L)

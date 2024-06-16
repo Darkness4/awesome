@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------
---- Filesystem module for gears.
+--- Various filesystem utility functions.
+--
+-- Note that these functions are blocking. If you need to do a large number of
+-- I/O operations, it is better to use `lgi.Gio` async functions.
 --
 -- @utillib gears.filesystem
 ---------------------------------------------------------------------------
@@ -78,6 +81,18 @@ function filesystem.dir_readable(path)
                                        Gio.FileQueryInfoFlags.NONE)
     return gfileinfo and gfileinfo:get_file_type() == "DIRECTORY" and
         gfileinfo:get_attribute_boolean("access::can-read")
+end
+
+--- Check if a path exists, is writable and a directory.
+-- @tparam string path The directory path.
+-- @treturn boolean True if path exists and is writable.
+-- @staticfct gears.filesystem.dir_writable
+function filesystem.dir_writable(path)
+    local gfile = Gio.File.new_for_path(path)
+    local gfileinfo = gfile:query_info("standard::type,access::can-write",
+                                       Gio.FileQueryInfoFlags.NONE)
+    return gfileinfo and gfileinfo:get_file_type() == "DIRECTORY" and
+        gfileinfo:get_attribute_boolean("access::can-write")
 end
 
 --- Check if a path is a directory.

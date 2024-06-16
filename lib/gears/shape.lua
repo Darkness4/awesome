@@ -74,7 +74,9 @@ local module = {}
 -- @tparam boolean br If the bottom right corner is rounded
 -- @tparam boolean bl If the bottom left corner is rounded
 -- @tparam number rate The "squareness" of the squircle, should be greater than 1
--- @tparam number delta The "smoothness" of the shape, delta must be greater than 0.01 and will be reset to 0.01 if not
+-- @tparam number delta The "smoothness" of the shape, delta must be greate
+--  than 0.01 and will be reset to 0.01 if not
+-- @noreturn
 -- @staticfct gears.shape.partial_squircle
 function module.partial_squircle(cr, width, height, tl, tr, br, bl, rate, delta)
    -- rate ~ 2 can be used by icon
@@ -167,7 +169,9 @@ end
 -- @tparam number width The shape width
 -- @tparam number height The shape height
 -- @tparam number rate The "squareness" of the squircle, should be greater than 1
--- @tparam number delta The "smoothness" of the shape, delta must be greater than 0.01 and will be reset to 0.01 if not
+-- @tparam number delta The "smoothness" of the shape, delta must be greater
+--  than 0.01 and will be reset to 0.01 if not
+-- @noreturn
 -- @staticfct gears.shape.squircle
 function module.squircle(cr, width, height, rate, delta)
    module.partial_squircle(cr, width, height, true, true, true, true, rate, delta)
@@ -182,6 +186,7 @@ end
 -- @tparam number width The width constraint
 -- @tparam number height The height constraint
 -- @tparam number n Number of grams (default n = 5 -> pentagram)
+-- @noreturn
 -- @staticfct gears.shape.star
 function module.star(cr, width, height, n)
     -- use the minimum as size
@@ -215,7 +220,8 @@ end
 -- @param cr A cairo content
 -- @tparam number width The rectangle width
 -- @tparam number height The rectangle height
--- @tparam number radius the corner radius
+-- @tparam number radius The corner radius
+-- @noreturn
 -- @staticfct gears.shape.rounded_rect
 function module.rounded_rect(cr, width, height, radius)
 
@@ -246,6 +252,7 @@ end
 -- @param cr A cairo content
 -- @param width The rectangle width
 -- @param height The rectangle height.
+-- @noreturn
 -- @staticfct gears.shape.rounded_bar
 function module.rounded_bar(cr, width, height)
     module.rounded_rect(cr, width, height, height / 2)
@@ -263,6 +270,7 @@ end
 -- @tparam boolean br If the bottom right corner is rounded
 -- @tparam boolean bl If the bottom left corner is rounded
 -- @tparam number rad The corner radius
+-- @noreturn
 -- @staticfct gears.shape.partially_rounded_rect
 function module.partially_rounded_rect(cr, width, height, tl, tr, br, bl, rad)
     rad = rad or 10
@@ -319,6 +327,7 @@ end
 -- @tparam[opt=5] number corner_radius The corner radius
 -- @tparam[opt=10] number arrow_size The width and height of the arrow
 -- @tparam[opt=width/2 - arrow_size/2] number arrow_position The position of the arrow
+-- @noreturn
 -- @staticfct gears.shape.infobubble
 function module.infobubble(cr, width, height, corner_radius, arrow_size, arrow_position)
     arrow_size     = arrow_size     or 10
@@ -353,6 +362,7 @@ end
 -- @tparam number width The shape width
 -- @tparam number height The shape height
 -- @tparam[opt=height/2] number arrow_length The length of the arrow part
+-- @noreturn
 -- @staticfct gears.shape.rectangular_tag
 function module.rectangular_tag(cr, width, height, arrow_length)
     arrow_length = arrow_length or height/2
@@ -383,6 +393,7 @@ end
 -- @tparam[opt=head_width] number head_width The width of the head (/\) of the arrow
 -- @tparam[opt=width /2] number shaft_width The width of the shaft of the arrow
 -- @tparam[opt=height/2] number shaft_length The head_length of the shaft (the rest is the head)
+-- @noreturn
 -- @staticfct gears.shape.arrow
 function module.arrow(cr, width, height, head_width, shaft_width, shaft_length)
     shaft_length = shaft_length or height / 2
@@ -408,6 +419,7 @@ end
 -- @param cr A cairo context
 -- @tparam number width The shape width
 -- @tparam number height The shape height
+-- @noreturn
 -- @staticfct gears.shape.hexagon
 function module.hexagon(cr, width, height)
     cr:move_to(height/2,0)
@@ -428,6 +440,7 @@ end
 -- @tparam number width The shape width
 -- @tparam number height The shape height
 -- @tparam[opt=height/2] number arrow_depth The width of the arrow part of the shape
+-- @noreturn
 -- @staticfct gears.shape.powerline
 function module.powerline(cr, width, height, arrow_depth)
     arrow_depth = arrow_depth or height/2
@@ -456,6 +469,7 @@ end
 -- @param cr A cairo context
 -- @tparam number width The shape width
 -- @tparam number height The shape height
+-- @noreturn
 -- @staticfct gears.shape.isosceles_triangle
 function module.isosceles_triangle(cr, width, height)
     cr:move_to( width/2, 0      )
@@ -472,6 +486,7 @@ end
 -- @tparam number width The shape width
 -- @tparam number height The shape height
 -- @tparam[opt=width/3] number thickness The cross section thickness
+-- @noreturn
 -- @staticfct gears.shape.cross
 function module.cross(cr, width, height, thickness)
     thickness = thickness or width/3
@@ -500,6 +515,7 @@ end
 -- @tparam number width The shape width
 -- @tparam number height The shape height
 -- @tparam number corner_radius
+-- @noreturn
 -- @staticfct gears.shape.octogon
 function module.octogon(cr, width, height, corner_radius)
     corner_radius = corner_radius or math.min(10, math.min(width, height)/4)
@@ -524,6 +540,7 @@ end
 -- @tparam number width The shape width
 -- @tparam number height The shape height
 -- @tparam[opt=math.min(width  height) / 2)] number radius The radius
+-- @noreturn
 -- @staticfct gears.shape.circle
 function module.circle(cr, width, height, radius)
     radius = radius or math.min(width, height) / 2
@@ -539,6 +556,7 @@ end
 -- @param cr A cairo context
 -- @tparam number width The shape width
 -- @tparam number height The shape height
+-- @noreturn
 -- @staticfct gears.shape.rectangle
 function module.rectangle(cr, width, height)
     cr:rectangle(0, 0, width, height)
@@ -553,6 +571,7 @@ end
 -- @tparam number width The shape width
 -- @tparam number height The shape height
 -- @tparam[opt=width/3] number base_width The parallelogram base width
+-- @noreturn
 -- @staticfct gears.shape.parallelogram
 function module.parallelogram(cr, width, height, base_width)
     base_width = base_width or width/3
@@ -570,6 +589,7 @@ end
 -- @param cr A cairo context
 -- @tparam number width The shape width
 -- @tparam number height The shape height
+-- @noreturn
 -- @staticfct gears.shape.losange
 function module.losange(cr, width, height)
     cr:move_to(width/2 , 0        )
@@ -591,6 +611,7 @@ end
 -- @tparam[opt=0] number start_angle The start angle (in radian)
 -- @tparam[opt=math.pi/2] number end_angle The end angle (in radian)
 -- @tparam[opt=math.min(width height)/2] number radius The shape height
+-- @noreturn
 -- @staticfct gears.shape.pie
 function module.pie(cr, width, height, start_angle, end_angle, radius)
     radius = radius or math.floor(math.min(width, height)/2)
@@ -627,8 +648,9 @@ end
 -- @tparam[opt=math.min(width height)/2] number thickness The arc thickness
 -- @tparam[opt=0] number start_angle The start angle (in radian)
 -- @tparam[opt=math.pi/2] number end_angle The end angle (in radian)
--- @tparam[opt=false] boolean start_rounded if the arc start rounded
--- @tparam[opt=false] boolean end_rounded if the arc end rounded
+-- @tparam[opt=false] boolean start_rounded If the arc start rounded
+-- @tparam[opt=false] boolean end_rounded If the arc end rounded
+-- @noreturn
 -- @staticfct gears.shape.arc
 function module.arc(cr, width, height, thickness, start_angle, end_angle, start_rounded, end_rounded)
     start_angle = start_angle or 0
@@ -739,6 +761,77 @@ function module.arc(cr, width, height, thickness, start_angle, end_angle, start_
     cr:close_path()
 end
 
+--- Overlap 2 rectangles to emulate a shadow effect.
+--
+-- This is intended to be used with either the `wibox.container.margin` or
+-- the `client.shape` to implement MS-DOS and TWM MenuShadowColor "classic"
+-- shadows.
+--
+-- Warning: If `x_offset` or `y_offset` are greater than the width or height
+-- respectively, strange thing will happen.
+--
+-- @DOC_gears_shape_solid_rectangle_shadow_EXAMPLE@
+--
+-- @staticfct gears.shape.solid_rectangle_shadow
+-- @param cr A cairo context
+-- @tparam number width The shape width
+-- @tparam number height The shape height
+-- @tparam[opt=5] number x_offset The shadow area horizontal offset.
+-- @tparam[opt=5] number y_offset The shadow area vertical offset.
+-- @noreturn
+function module.solid_rectangle_shadow(cr, w, h, x_offset, y_offset)
+    x_offset, y_offset = x_offset or 5, y_offset or 5
+    w, h = w - math.abs(x_offset), h - math.abs(y_offset)
+
+    -- Get rid of the corner case first.
+    if x_offset == 0 and y_offset == 0 then return module.rectangle(cr, w, h) end
+
+    -- This leaves 2 possibilities, "hole" at top-left or top-right.
+
+    -- Gather the main rectangle geometry.
+    local rect1 = {x0=0, y0=0, x1=w, y1=h}
+    local rect2 = {x0=x_offset, y0=y_offset, x1=w + x_offset, y1=h + y_offset}
+
+    -- Normalize (shift) to {0, 0} -> {w, h}
+    if x_offset < 0 then
+        rect1.x0, rect1.x1 = rect1.x0 - x_offset, rect1.x1 - x_offset
+        rect2.x0, rect2.x1 = rect2.x0 - x_offset, rect2.x1 - x_offset
+    end
+    if y_offset < 0 then
+        rect1.y0, rect1.y1 = rect1.y0 - y_offset, rect1.y1 - y_offset
+        rect2.y0, rect2.y1 = rect2.y0 - y_offset, rect2.y1 - y_offset
+    end
+
+    -- Swap the rectangles if needed.
+    if y_offset < 0 then
+        rect1, rect2 = rect2, rect1
+    end
+
+    if rect1.x0 > rect2.x0 then
+        -- cut at top-right
+        cr:move_to(rect1.x0, rect1.y0)
+        cr:line_to(rect1.x1, rect1.y0)
+        cr:line_to(rect1.x1, rect1.y1)
+        cr:line_to(rect2.x1, rect1.y1)
+        cr:line_to(rect2.x1, rect2.y1)
+        cr:line_to(rect2.x0, rect2.y1)
+        cr:line_to(rect2.x0, rect2.y0)
+        cr:line_to(rect1.x0, rect2.y0)
+        cr:close_path()
+    else
+        -- cut at top-left
+        cr:move_to(rect1.x0, rect1.y0)
+        cr:line_to(rect1.x1, rect1.y0)
+        cr:line_to(rect1.x1, rect2.y0)
+        cr:line_to(rect2.x1, rect2.y0)
+        cr:line_to(rect2.x1, rect2.y1)
+        cr:line_to(rect2.x0, rect2.y1)
+        cr:line_to(rect2.x0, rect1.y1)
+        cr:line_to(rect1.x0, rect1.y1)
+        cr:close_path()
+    end
+end
+
 --- A partial rounded bar. How much of the rounded bar is visible depends on
 -- the given percentage value.
 --
@@ -752,6 +845,7 @@ end
 -- @tparam number h The shape height
 -- @tparam number percent The progressbar percent
 -- @tparam boolean hide_left Do not draw the left side of the shape
+-- @noreturn
 -- @staticfct gears.shape.radial_progress
 function module.radial_progress(cr, w, h, percent, hide_left)
     percent = percent or 1
@@ -820,6 +914,12 @@ end
 -- @param shape A shape function
 -- @return A transformation handle, also act as a shape function
 -- @staticfct gears.shape.transform
+-- @see gears.matrix.translate
+-- @see gears.matrix.scale
+-- @see gears.matrix.rotate
+-- @see gears.matrix.rotate_at
+-- @see gears.matrix.multiply
+-- @see gears.matrix.invert
 function module.transform(shape)
 
     -- Apply the transformation matrix and apply the shape, then restore

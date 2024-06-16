@@ -130,7 +130,9 @@ local function detect_areasnap(c, distance)
         current_snap and build_placement(current_snap, current_axis)(c, {
             to_percent     = 0.5,
             honor_workarea = true,
-            pretend        = true
+            honor_padding  = true,
+            pretend        = true,
+            margins         = beautiful.snapper_gap
         }) or nil
     )
 
@@ -147,6 +149,8 @@ local function apply_areasnap(c, args)
     return build_placement(current_snap, current_axis)(c,{
         to_percent     = 0.5,
         honor_workarea = true,
+        honor_padding  = true,
+        margins        = beautiful.snapper_gap
     })
 end
 
@@ -191,13 +195,19 @@ local function snap_inside(g, sg, snap)
 end
 
 --- Snap a client to the closest client or screen edge.
+--
 -- @function awful.mouse.snap
--- @param c The client to snap.
--- @param snap The pixel to snap clients.
--- @param x The client x coordinate.
--- @param y The client y coordinate.
--- @param fixed_x True if the client isn't allowed to move in the x direction.
--- @param fixed_y True if the client isn't allowed to move in the y direction.
+-- @tparam[opt=client.focus] client c The client to snap.
+-- @tparam integer snap The pixel to snap clients.
+-- @tparam integer x The client x coordinate.
+-- @tparam integer y The client y coordinate.
+-- @tparam boolean fixed_x True if the client isn't allowed to move in the x direction.
+-- @tparam boolean fixed_y True if the client isn't allowed to move in the y direction.
+-- @treturn table The new geometry.
+-- @usebeautiful beautiful.snap_bg
+-- @usebeautiful beautiful.snap_border_width
+-- @usebeautiful beautiful.snap_shape
+-- @usebeautiful beautiful.snapper_gap
 function module.snap(c, snap, x, y, fixed_x, fixed_y)
     snap = snap or module.default_distance
     c = c or capi.client.focus
@@ -211,7 +221,7 @@ function module.snap(c, snap, x, y, fixed_x, fixed_y)
     geom.height = geom.height + (2 * c.border_width) + (2 * snapper_gap)
 
     geom, edge = snap_inside(geom, c.screen.geometry, snap)
-    geom = snap_inside(geom, c.screen.workarea, snap)
+    geom = snap_inside(geom, c.screen.tiling_area, snap)
 
     -- Allow certain windows to snap to the edge of the workarea.
     -- Only allow docking to workarea for consistency/to avoid problems.

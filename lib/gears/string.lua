@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------
---- String module for gears.
+--- Various string manipulation and introspection fuctions.
 --
 -- @utillib gears.string
 ---------------------------------------------------------------------------
@@ -10,7 +10,7 @@ local xml_entity_names = { ["'"] = "&apos;", ["\""] = "&quot;", ["<"] = "&lt;", 
 
 --- Escape a string from XML char.
 -- Useful to set raw text in textbox.
--- @param text Text to escape.
+-- @tparam string text Text to escape.
 -- @treturn string Escaped text.
 -- @staticfct gears.string.xml_escape
 function gstring.xml_escape(text)
@@ -21,7 +21,7 @@ local xml_entity_chars = { lt = "<", gt = ">", nbsp = " ", quot = "\"", apos = "
                            amp = "&" };
 
 --- Unescape a string from entities.
--- @param text Text to unescape.
+-- @tparam string text Text to unescape.
 -- @treturn string Unescaped text.
 -- @staticfct gears.string.xml_unescape
 function gstring.xml_unescape(text)
@@ -74,6 +74,7 @@ end
 
 --- Generate a pattern matching expression that ignores case.
 -- @tparam string q Original pattern matching expression.
+-- @treturn string The pattern.
 -- @staticfct gears.string.query_to_pattern
 function gstring.query_to_pattern(q)
     local s = gstring.quote_pattern(q)
@@ -85,6 +86,7 @@ function gstring.query_to_pattern(q)
                     end)
     return s
 end
+
 
 --- Split separates a string containing a delimiter into the list of
 -- substrings between that delimiter.
@@ -108,6 +110,33 @@ function gstring.split(str, delimiter)
     end
     return result
 end
+
+
+--- Pattern split separates a string by a pattern to the table of substrings.
+-- @tparam string str String to be splitted
+-- @tparam string[opt="\n"] pattern Pattern the target string will
+--   be splitted by.
+-- @treturn table A list of substrings.
+-- @staticfct gears.string.split
+function gstring.psplit(str, pattern)
+    pattern = pattern or "\n"
+    local result = {}
+    if #pattern == 0 then
+        for index = 1, #str do
+            result[#result+1] = str:sub(index, index)
+        end
+        return result
+    end
+    local pos = 1
+    for match in str:gmatch(pattern) do
+        local start_pos, end_pos = str:find(match, pos, true)
+        result[#result+1] = str:sub(pos, start_pos-1)
+        pos = end_pos+1
+    end
+    result[#result+1] = str:sub(pos, #str)
+    return result
+end
+
 
 --- Check if a string starts with another string.
 -- @DOC_text_gears_string_startswith_EXAMPLE@

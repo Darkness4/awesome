@@ -39,7 +39,7 @@ local dbus = { config = {} }
 local bus_connection
 
 -- DBUS Notification constants
--- https://developer.gnome.org/notification-spec/#urgency-levels
+-- https://specifications.freedesktop.org/notification-spec/notification-spec-latest.html#urgency-levels
 local urgency = {
     low      = "\0",
     normal   = "\1",
@@ -68,6 +68,9 @@ end
 local function sendNotificationClosed(notificationId, reason)
     if reason <= 0 then
         reason = cst.notification_closed_reason.undefined
+    end
+    if reason == cst.notification_closed_reason.dismissed_by_user then
+        sendActionInvoked(notificationId, "default")
     end
     if bus_connection then
         bus_connection:emit_signal(nil, "/org/freedesktop/Notifications",
